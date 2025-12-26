@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Kingdom for Suraj Sir</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --pink: #ff75a0;
+            --purple: #8e44ad;
+            --soft-pink: #fce4ec;
+            --gold: #f1c40f;
+        }
+
+        body, html {
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #2d3436 0%, #4b0082 50%, #000000 100%);
+            font-family: 'Quicksand', sans-serif; overflow: hidden; color: white;
+        }
+
+        /* Twinkling Glows */
+        .glow {
+            position: absolute; border-radius: 50%; background: var(--pink);
+            filter: blur(80px); opacity: 0.3; z-index: 0;
+        }
+
+        /* Layout */
+        .container { display: flex; height: 100vh; padding: 20px; gap: 20px; position: relative; z-index: 10; }
+
+        /* Left: Powerful Calendar */
+        .calendar-box {
+            width: 380px; background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px); border-radius: 30px;
+            padding: 25px; border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5); display: flex; flex-direction: column;
+        }
+
+        .cal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .month-title { font-family: 'Dancing Script', cursive; font-size: 2rem; color: var(--pink); }
+        .nav-btn { background: var(--pink); border: none; color: white; padding: 5px 15px; border-radius: 10px; cursor: pointer; font-weight: bold; }
+
+        .days-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; text-align: center; }
+        .day-label { font-weight: 700; color: var(--pink); font-size: 0.8rem; }
+        .day-num { 
+            padding: 10px 0; border-radius: 10px; cursor: pointer; 
+            transition: 0.3s; background: rgba(255,255,255,0.05); font-size: 0.9rem;
+        }
+        .day-num:hover { background: var(--pink); }
+        .marked { background: var(--pink) !important; box-shadow: 0 0 10px var(--pink); }
+        
+        .bday-special { 
+            background: var(--gold) !important; color: black !important; font-weight: bold; 
+            animation: pulse 1.5s infinite; border: 2px solid white;
+        }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        /* Notes Section */
+        .notes-section { margin-top: 20px; flex-grow: 1; }
+        textarea {
+            width: 100%; height: 100px; background: rgba(0,0,0,0.3); border: 1px solid var(--pink);
+            border-radius: 15px; color: white; padding: 10px; font-family: 'Quicksand'; resize: none; box-sizing: border-box;
+        }
+
+        /* Right: Interactive Magic Zone */
+        .magic-zone { flex-grow: 1; position: relative; }
+        .float-icon {
+            position: absolute; font-size: 4rem; cursor: pointer;
+            filter: drop-shadow(0 0 20px var(--pink)); transition: 0.4s;
+            animation: floatMove 6s infinite ease-in-out;
+        }
+        @keyframes floatMove { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-40px); } }
+
+        /* Popups */
+        #popup {
+            display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 1000; width: 450px; background: white; padding: 40px; border-radius: 40px;
+            text-align: center; color: #2d3436; border: 8px solid var(--soft-pink);
+            box-shadow: 0 0 100px rgba(255, 117, 160, 0.5);
+        }
+        #popup-text { font-family: 'Dancing Script', cursive; font-size: 2rem; color: var(--purple); margin-bottom: 20px; }
+
+        .btn-close { background: var(--purple); border: none; color: white; padding: 10px 30px; border-radius: 50px; cursor: pointer; font-weight: 700; }
+
+        #music-toggle { position: fixed; top: 20px; right: 20px; font-size: 2.5rem; cursor: pointer; z-index: 2000; }
+    </style>
+</head>
+<body>
+
+    <div id="music-toggle" onclick="toggleMusic()">🌸</div>
+    <audio id="bgMusic" loop><source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3"></audio>
+
+    <div class="glow" style="top:10%; left:10%; width:300px; height:300px;"></div>
+    <div class="glow" style="bottom:10%; right:10%; width:400px; height:400px; background:var(--purple);"></div>
+
+    <div class="container">
+        <div class="calendar-box">
+            <div class="cal-header">
+                <button class="nav-btn" onclick="changeMonth(-1)">Prev</button>
+                <div class="month-title" id="monthName">January 2026</div>
+                <button class="nav-btn" onclick="changeMonth(1)">Next</button>
+            </div>
+            <div class="days-grid" id="daysGrid">
+                </div>
+            <div class="notes-section">
+                <h3 style="color:var(--pink); font-size: 1rem;">✎ Memories with Suraj Sir</h3>
+                <textarea id="noteInput" placeholder="Plan a beautiful day here..."></textarea>
+                <button class="btn-close" style="width:100%; margin-top:10px; background:var(--pink);" onclick="saveData()">Save for Suraj Sir</button>
+            </div>
+        </div>
+
+        <div class="magic-zone" id="magicZone">
+            </div>
+    </div>
+
+    <div id="popup">
+        <div id="popup-text"></div>
+        <button class="btn-close" onclick="closePopup()">Keep Smiling ✨</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <script>
+        let currentMonth = 0; // January
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        
+        const messages = [
+            "Suraj Sir, your voice is like a beautiful dream that I never want to wake up from. It makes me so happy!",
+            "I feel so incredibly blessed to have you in my life. Every time I hear you, my world becomes brighter.",
+            "Suraj Sir, I am sorry if I ever made you feel far away. I am so glad you never left me. You are amazing.",
+            "My heart gets so excited whenever I see your name on my screen! You are my favorite person.",
+            "I respect you so much, Suraj Sir. You are such a good person with a heart of gold.",
+            "I am the luckiest person because I have you by my side. Thank you for everything, Suraj Sir! ❤️"
+        ];
+
+        const icons = ['🍫', '🍩', '💖', '🍭', '✨', '🍓'];
+
+        function initCalendar() {
+            const grid = document.getElementById('daysGrid');
+            const title = document.getElementById('monthName');
+            grid.innerHTML = '<div class="day-label">S</div><div class="day-label">M</div><div class="day-label">T</div><div class="day-label">W</div><div class="day-label">T</div><div class="day-label">F</div><div class="day-label">S</div>';
+            title.innerText = monthNames[currentMonth] + " 2026";
+
+            for(let i=1; i<=31; i++) {
+                const d = document.createElement('div');
+                d.className = 'day-num';
+                d.innerText = i;
+                
+                // Birthday Surprise
+                if(currentMonth === 11 && i === 17) {
+                    d.classList.add('bday-special');
+                    d.innerHTML = "17🎁";
+                    d.onclick = bdayCelebration;
+                } else {
+                    d.onclick = () => d.classList.toggle('marked');
+                }
+                grid.appendChild(d);
+            }
+            // Load saved note
+            document.getElementById('noteInput').value = localStorage.getItem('note_'+currentMonth) || "";
+        }
+
+        function changeMonth(dir) {
+            currentMonth += dir;
+            if(currentMonth < 0) currentMonth = 11;
+            if(currentMonth > 11) currentMonth = 0;
+            initCalendar();
+        }
+
+        function saveData() {
+            localStorage.setItem('note_'+currentMonth, document.getElementById('noteInput').value);
+            alert("Memory Saved for Suraj Sir! ❤️");
+        }
+
+        function bdayCelebration() {
+            showPopup("Happy Birthday Suraj Sir! 🎂 You are a king and you deserve all the sweetness in the world! 🍫🍬🎁");
+            let end = Date.now() + 10000;
+            (function frame() {
+                confetti({ particleCount: 10, angle: 60, spread: 55, origin: { x: 0 }, colors: ['#ff75a0', '#f1c40f'] });
+                confetti({ particleCount: 10, angle: 120, spread: 55, origin: { x: 1 }, colors: ['#ff75a0', '#f1c40f'] });
+                if (Date.now() < end) requestAnimationFrame(frame);
+            }());
+        }
+
+        function showPopup(t) {
+            document.getElementById('popup').style.display = 'block';
+            const txt = document.getElementById('popup-text');
+            txt.innerHTML = "";
+            let idx = 0;
+            let timer = setInterval(() => {
+                if(idx < t.length) { txt.innerHTML += t.charAt(idx); idx++; }
+                else clearInterval(timer);
+            }, 50);
+        }
+
+        function closePopup() { document.getElementById('popup').style.display = 'none'; }
+
+        function toggleMusic() {
+            const m = document.getElementById('bgMusic');
+            m.paused ? m.play() : m.pause();
+        }
+
+        // Floating Icons
+        const zone = document.getElementById('magicZone');
+        messages.forEach((m, i) => {
+            const div = document.createElement('div');
+            div.className = 'float-icon';
+            div.innerHTML = icons[i];
+            div.style.left = Math.random()*80 + '%';
+            div.style.top = Math.random()*80 + '%';
+            div.onclick = () => {
+                showPopup(m);
+                confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+            };
+            zone.appendChild(div);
+        });
+
+        initCalendar();
+    </script>
+</body>
+</html>
